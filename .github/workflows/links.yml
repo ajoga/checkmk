@@ -13,8 +13,6 @@ on:
 #     lychee is not really meant to parse *py files, so without this option it parses what looks like email addresses to check ttheir validity -- it makes a lot of noise
 # --exclude 'https?://localhost'
 #     Self explanatory ; localhost without trailing slash so we also exclude things like https://localhost:5000
-# -not \( -path ./tests -prune \)
-#     Tests often have dummy URL in them, so let's exclude them
 
 jobs:
   linkChecker:
@@ -25,6 +23,7 @@ jobs:
       # TODO : Add the same step for http once this one works good enough
       # Note that once https://github.com/lycheeverse/lychee/pull/236 will be included in a release, we should be able to not specify the scheme and have an only step
 
+      # Tests often have dummy URL in them, so let's exclude them
       - name: remove tests
         run: rm -fr tests/
 
@@ -35,7 +34,7 @@ jobs:
             --exclude-all-private
             --exclude-mail
             --scheme https
-            --exclude 'https?://localhost'
+            --exclude https?://localhost
             --verbose 
             --no-progress
             **/*.md **/*.py
