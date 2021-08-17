@@ -1,0 +1,45 @@
+name: Links
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  schedule:
+    - cron: "00 18 * * *"
+
+# see https://github.com/lycheeverse/lychee for switch options
+# -exclude-all-private    Exclude all private IPs from checking.
+#     There is a lot of links to 127.0.0.1 and such in the codebase.
+# --exclude-mail
+#     lychee is not really meant to parse *py files, so without this option it parses what looks like email addresses to check ttheir validity -- it makes a lot of noise
+# --exclude 'https?://localhost'
+#     Self explanatory ; localhost without trailing slash so we also exclude things like https://localhost:5000
+# -not \( -path ./tests -prune \)
+#     Tests often have dummy URL in them, so let's exclude them
+
+jobs:
+  linkChecker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # TODO : Add the same step for http once this one works good enough
+      - name: Link Checker https
+        uses: lycheeverse/lychee-action@v1.0.8
+        with:
+          args: >
+            --exclude-all-private
+            --exclude-mail
+            --scheme https
+            --exclude 'https?://localhost'
+            --verbose 
+            --no-progress 
+            -- $(find . -not \( -path ./tests -prune \) -type f -regextype posix-egrep -iregex '.*.(py|md)$' -print0 |xargs --null)
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Create Issue From File
+        uses: peter-evans/create-issue-from-file@v3
+        with:
+          title: Link Checker Report
+          content-filepath: ./lychee/out.md
+          labels: report, automated issue
