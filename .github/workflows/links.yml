@@ -15,33 +15,18 @@ on:
 #     Self explanatory ; localhost without trailing slash so we also exclude things like https://localhost:5000
 
 jobs:
-  linkChecker:
+  # TODO : delete one of the two jobs
+  # once https://github.com/lycheeverse/lychee/pull/236 will be included in a release, we should be able to not specify the scheme so we can have only one job
+  linkCheckerHTTP:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      # TODO : Add the same step for http once this one works good enough
-      # Note that once https://github.com/lycheeverse/lychee/pull/236 will be included in a release, we should be able to not specify the scheme and have an only step
 
       # Tests often have dummy URL in them, so let's exclude them
       - name: remove tests
         run: rm -fr tests/
 
-      - name: Link Checker https
-        uses: lycheeverse/lychee-action@v1.0.8
-        with:
-          args: >
-            --exclude-all-private
-            --exclude-mail
-            --scheme https
-            --exclude https?://localhost
-            --verbose 
-            --no-progress
-            **/*.md **/*.py
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-      - name: Link Checker http
+      - name: Link Checker
         uses: lycheeverse/lychee-action@v1.0.8
         with:
           args: >
@@ -58,6 +43,36 @@ jobs:
       - name: Create Issue From File
         uses: peter-evans/create-issue-from-file@v3
         with:
-          title: Link Checker Report
+          title: Link Checker Report http
+          content-filepath: ./lychee/out.md
+          labels: report, automated issue
+
+  linkCheckerHTTPS:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Tests often have dummy URL in them, so let's exclude them
+      - name: remove tests
+        run: rm -fr tests/
+
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v1.0.8
+        with:
+          args: >
+            --exclude-all-private
+            --exclude-mail
+            --scheme https
+            --exclude https?://localhost
+            --verbose 
+            --no-progress
+            **/*.md **/*.py
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Create Issue From File
+        uses: peter-evans/create-issue-from-file@v3
+        with:
+          title: Link Checker Report https
           content-filepath: ./lychee/out.md
           labels: report, automated issue
