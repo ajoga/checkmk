@@ -41,6 +41,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
+      - name: Link Checker http
+        uses: lycheeverse/lychee-action@v1.0.8
+        with:
+          args: >
+            --exclude-all-private
+            --exclude-mail
+            --scheme http
+            --exclude https?://localhost
+            --verbose 
+            --no-progress
+            **/*.md **/*.py
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
       - name: Create Issue From File
         uses: peter-evans/create-issue-from-file@v3
         with:
