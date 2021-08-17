@@ -24,6 +24,10 @@ jobs:
 
       # TODO : Add the same step for http once this one works good enough
       # Note that once https://github.com/lycheeverse/lychee/pull/236 will be included in a release, we should be able to not specify the scheme and have an only step
+
+      - name: remove tests
+        run: rm -fr tests/
+
       - name: Link Checker https
         uses: lycheeverse/lychee-action@v1.0.8
         with:
@@ -33,8 +37,8 @@ jobs:
             --scheme https
             --exclude 'https?://localhost'
             --verbose 
-            --no-progress 
-            "$(find . -not \( -path ./tests -prune \) -type f -regextype posix-egrep -iregex '.*.(py|md)$' -print0 |xargs --null)"
+            --no-progress
+            **/*.md **/*.py
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
